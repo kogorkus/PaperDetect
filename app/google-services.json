@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1018983055369",
+    "firebase_url": "https://paperdetect.firebaseio.com",
+    "project_id": "paperdetect",
+    "storage_bucket": "paperdetect.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1018983055369:android:f7937486ff1bad9d",
+        "android_client_info": {
+          "package_name": "com.example.kogorkus.paperdetect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1018983055369-jl601v73c7cm0a4e48qfg7fko1sm8oqr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kogorkus.paperdetect",
+            "certificate_hash": "60acb7b626b1ad0ba8797a65813b30baf96e3ec2"
+          }
+        },
+        {
+          "client_id": "1018983055369-1hksnq6qq9bqrj450vhia4ji0j72dd70.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChDygtE4x6Cbbv1NLCuf2xCjOcjDjGbDU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1018983055369-1hksnq6qq9bqrj450vhia4ji0j72dd70.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

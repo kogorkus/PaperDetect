@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">PaperDetect</string>
+    <string name="OpenListAct">Открыть список</string>
+    <string name="AddNew">Добавить новый</string>
+    <string name="FocusCamera">Наведите камеру на штрихкод</string>
+</resources>
