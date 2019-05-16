@@ -2,13 +2,11 @@ package com.example.kogorkus.paperdetect;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +16,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -66,7 +63,7 @@ public class ListActivity extends AppCompatActivity {
 
         dbManager = DBManager.getInstance(this);
         Cursor cursor = dbManager.getAllResults();
-        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
             String name = cursor.getString(cursor.getColumnIndex("NAME"));
             String length = cursor.getString(cursor
                     .getColumnIndex("LENGTH"));
@@ -78,7 +75,7 @@ public class ListActivity extends AppCompatActivity {
         db.collection("test").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
-                for (DocumentSnapshot snapshot : documentSnapshots){
+                for (DocumentSnapshot snapshot : documentSnapshots) {
                     adapter.notifyDataSetChanged();
                     arrayList.add(new String[]{snapshot.get("Name") + "", snapshot.get("Length") + ""});
                 }
@@ -98,7 +95,7 @@ public class ListActivity extends AppCompatActivity {
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             View v = LayoutInflater.from(ListActivity.this).inflate(R.layout.list, null);
-            TextView tvName =  v.findViewById(R.id.Name);
+            TextView tvName = v.findViewById(R.id.Name);
             TextView tvLength = v.findViewById(R.id.Length);
             tvName.setText(arrayList.get(position)[0]);
             tvLength.setText(arrayList.get(position)[1]);
@@ -120,8 +117,7 @@ public class ListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.add_to_local_db)
-        {
+        if (item.getItemId() == R.id.add_to_local_db) {
             Intent intent = new Intent(this, AddActivity.class);
             startActivity(intent);
         }

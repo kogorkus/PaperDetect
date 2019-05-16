@@ -44,13 +44,11 @@ public class DBManager {
         return db.rawQuery("SELECT * FROM BARCODES ORDER BY NAME;", null);
     }
 
-    void clearTable()
-    {
+    void clearTable() {
         db.delete("BARCODES", null, null);
     }
 
-    void deleteBarcode(String NAME)
-    {
+    void deleteBarcode(String NAME) {
         db.delete("BARCODES", "NAME=?", new String[]{NAME});
     }
 }

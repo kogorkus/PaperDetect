@@ -1,8 +1,6 @@
 package com.example.kogorkus.paperdetect;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.AppComponentFactory;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -18,6 +16,7 @@ import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
+
 import java.io.IOException;
 
 public class ScanToAddActivity extends AppCompatActivity {
@@ -26,8 +25,6 @@ public class ScanToAddActivity extends AppCompatActivity {
     private TextView textView;
     private String code;
 
-    private DBManager dbManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +32,6 @@ public class ScanToAddActivity extends AppCompatActivity {
         SurfaceView surfaceView = findViewById(R.id.cameraprewiev);
         textView = findViewById(R.id.mTextView);
 
-        dbManager = DBManager.getInstance(this);
 
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(this)
                 .build();
@@ -51,12 +47,9 @@ public class ScanToAddActivity extends AppCompatActivity {
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                try
-                {
+                try {
                     cameraSource.start(holder);
-                }
-                catch(IOException e)
-                {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
 
@@ -82,8 +75,7 @@ public class ScanToAddActivity extends AppCompatActivity {
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                if(barcodes.size() != 0)
-                {
+                if (barcodes.size() != 0) {
                     textView.post(new Runnable() {
                         @Override
                         public void run() {

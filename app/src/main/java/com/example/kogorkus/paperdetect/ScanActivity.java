@@ -48,7 +48,6 @@ public class ScanActivity extends Activity {
         textView = findViewById(R.id.mTextView);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-
         db = FirebaseFirestore.getInstance();
 
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(this).build();
@@ -61,15 +60,12 @@ public class ScanActivity extends Activity {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(ScanActivity.this, new String[] {Manifest.permission.CAMERA}, 100);
+                    ActivityCompat.requestPermissions(ScanActivity.this, new String[]{Manifest.permission.CAMERA}, 100);
                     return;
                 }
-                try
-                {
+                try {
                     cameraSource.start(holder);
-                }
-                catch(IOException e)
-                {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
 
@@ -95,26 +91,23 @@ public class ScanActivity extends Activity {
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                if(barcodes.size() != 0)
-                {
+                if (barcodes.size() != 0) {
 
                     code = barcodes.valueAt(0).displayValue;
                     db.collection("test").addSnapshotListener(new EventListener<QuerySnapshot>() {
                         @Override
                         public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
-                            //code  = textView.getText().toString();
-                            for (DocumentSnapshot snapshot : documentSnapshots){
-                                if(snapshot.get("Code").equals(code))
-                                {
+                            for (DocumentSnapshot snapshot : documentSnapshots) {
+
+                                if (snapshot.get("Code").equals(code)) {
                                     length = snapshot.get("Length").toString();
                                     textView.setText(snapshot.get("Name").toString());
                                     found = true;
                                 }
-
                             }
                         }
                     });
-                    if(!found) {
+                    if (!found) {
                         dbManager = DBManager.getInstance(ScanActivity.this);
                         cursor = dbManager.getAllResults();
                         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
@@ -127,7 +120,7 @@ public class ScanActivity extends Activity {
 
                         }
                     }
-                    if(!found){
+                    if (!found) {
                         textView.setText(code);
                         length = "";
                     }
@@ -140,15 +133,12 @@ public class ScanActivity extends Activity {
 
     public void AddBarcode(View view) {
 
-        if(found)
-        {
+        if (found) {
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("length", length);
             setResult(RESULT_OK, intent);
             finish();
-        }
-        else
-        {
+        } else {
             LayoutInflater li = LayoutInflater.from(this);
             View dialogView = li.inflate(R.layout.not_found_scan_dialog, null);
             AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);

@@ -21,7 +21,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -33,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private int NumberOfTerms;
     private double Difference;
     private double TotalLength;
-
 
 
     @Override
@@ -51,13 +49,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String value = Objects.requireNonNull(dataSnapshot.getValue(String.class));
-                if(!value.equals("")) {
+                if (!value.equals("")) {
                     TotalLength = Double.parseDouble(value);
-                    NumberOfTerms = (int)(TotalLength * 100 / ((14 + 35) * 0.5));
-                    Difference = ((35-14)/(double)NumberOfTerms);
+                    NumberOfTerms = (int) (TotalLength * 100 / ((14 + 35) * 0.5));
+                    Difference = ((35 - 14) / (double) NumberOfTerms);
                     textView.setText(value);
-                }
-                else {
+                } else {
                     textView.setText(R.string.PleaseSet);
                 }
                 Log.d("db", "Value is: " + value);
@@ -75,13 +72,12 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 Long value = dataSnapshot.getValue(Long.class);
-                if(value != 0 && TotalLength !=0) {
+                if (value != 0 && TotalLength != 0) {
                     double var = TotalLength * 100 - (value * 0.5 * (35 + (35 + (value - 1) * -Difference)));
-                    textView.setText(String.format(Locale.getDefault(), "%.2f",var / 100 ));
-                    textView.append( "\n" + "(" + (String.format(Locale.getDefault(), "%.2f",var / TotalLength )) + "%)");
+                    textView.setText(String.format(Locale.getDefault(), "%.2f", var / 100));
+                    textView.append("\n" + "(" + (String.format(Locale.getDefault(), "%.2f", var / TotalLength)) + "%)");
                     Log.d("db", "Value is: " + value);
-                }
-                else {
+                } else {
                     textView.setText(R.string.PleaseSet);
                 }
             }
@@ -106,7 +102,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data == null) {return;}
+        if (data == null) {
+            return;
+        }
         String length = data.getStringExtra("length");
         textView.setText(length);
         DatabaseReference myRef = database.getReference("length");
@@ -143,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog alertDialog = mDialogBuilder.create();
         alertDialog.show();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -151,8 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.remove_length)
-        {
+        if (item.getItemId() == R.id.remove_length) {
             DatabaseReference myRef = database.getReference("length");
             myRef.setValue("");
             myRef = database.getReference("ESP8266_Test/Data");
