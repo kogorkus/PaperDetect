@@ -2,5 +2,16 @@
     <string name="app_name">PaperDetect</string>
     <string name="OpenListAct">Открыть список</string>
     <string name="AddNew">Добавить новый</string>
-    <string name="FocusCamera">Наведите камеру на штрихкод</string>
+    <string name="FocusCamera">Focus camera on barcode</string>
+    <string name="Title">Название</string>
+    <string name="length">длина (м)</string>
+    <string name="Chose">Выбрать из списка</string>
+    <string name="Select">select</string>
+    <string name="Scan">scan code</string>
+    <string name="Manually">manually</string>
+    <string name="PleaseSet">"please use buttons below to set the length"</string>
+    <string name="remove_length">clear length</string>
+    <string name="add_new_item">add new item</string>
+    <string name="CodeNotFound">Сode not found. Would you like to add the code to database?</string>
+    <string name="enter_length">Enter length</string>
 </resources>

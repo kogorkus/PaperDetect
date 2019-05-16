@@ -1,14 +1,15 @@
 package com.example.kogorkus.paperdetect;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
-
-import java.util.ArrayList;
+import android.widget.Toast;
 
 public class DBManager {
     private Context context;
-    private String DB_NAME = "barcodes.db";
+    private String DB_NAME = "NewBarcodes.db";
 
     private SQLiteDatabase db;
 
@@ -28,28 +29,28 @@ public class DBManager {
     }
 
     private void createTablesIfNeedBe() {
-        db.execSQL("CREATE TABLE IF NOT EXISTS BARCODES (CODE TEXT, NAME TEXT);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS BARCODES (CODE TEXT, NAME TEXT, LENGTH TEXT);");
     }
 
-    void addBarcode(String barcode, String name) {
-        db.execSQL("INSERT INTO BARCODES VALUES ('" + barcode + "', '" + name
-                + "');");
+    void addBarcode(String barcode, String name, String length) {
+        ContentValues barcodeValue = new ContentValues();
+        barcodeValue.put("CODE", barcode);
+        barcodeValue.put("NAME", name);
+        barcodeValue.put("LENGTH", length);
+        db.insert("BARCODES", null, barcodeValue);
     }
 
-    ArrayList<Barcode> getAllResults() {
+    Cursor getAllResults() {
+        return db.rawQuery("SELECT * FROM BARCODES ORDER BY NAME;", null);
+    }
 
-        ArrayList<Barcode> data = new ArrayList<Barcode>();
-        Cursor cursor = db.rawQuery("SELECT * FROM BARCODES ORDER BY CODE DESC;", null);
-        boolean hasMoreData = cursor.moveToFirst();
+    void clearTable()
+    {
+        db.delete("BARCODES", null, null);
+    }
 
-        while (hasMoreData) {
-            String name = cursor.getString(cursor.getColumnIndex("NAME"));
-            String code = cursor.getString(cursor
-                    .getColumnIndex("CODE"));
-            data.add(new Barcode(name, code));
-            hasMoreData = cursor.moveToNext();
-        }
-
-        return data;
+    void deleteBarcode(String NAME)
+    {
+        db.delete("BARCODES", "NAME=?", new String[]{NAME});
     }
 }

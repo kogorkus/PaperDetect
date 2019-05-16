@@ -2,11 +2,16 @@ package com.example.kogorkus.paperdetect;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
+import android.database.Cursor;
 import android.support.v4.app.ActivityCompat;
+import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -16,40 +21,47 @@ import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
-
-import org.w3c.dom.Text;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 
 public class ScanActivity extends Activity {
 
-    SurfaceView surfaceView;
-    CameraSource cameraSource;
-    TextView textView;
-    BarcodeDetector barcodeDetector;
-
-
+    private CameraSource cameraSource;
+    private TextView textView;
+    private String length;
+    private String code;
+    private FirebaseFirestore db;
+    private boolean found = false;
     private DBManager dbManager;
+    private Cursor cursor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
-        surfaceView = findViewById(R.id.cameraprewiev);
+        SurfaceView surfaceView = findViewById(R.id.cameraprewiev);
         textView = findViewById(R.id.mTextView);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        dbManager = DBManager.getInstance(this);
 
-        barcodeDetector = new BarcodeDetector.Builder(this)
-                .build();
+        db = FirebaseFirestore.getInstance();
+
+        BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(this).build();
 
         cameraSource = new CameraSource.Builder(this, barcodeDetector)
-                .setRequestedPreviewSize(640, 480).build();
+                .setRequestedPreviewSize(640, 480)
+                .setAutoFocusEnabled(true).build();
 
         surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(ScanActivity.this, new String[] {Manifest.permission.CAMERA}, 100);
                     return;
                 }
                 try
@@ -85,27 +97,81 @@ public class ScanActivity extends Activity {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
                 if(barcodes.size() != 0)
                 {
-                    textView.post(new Runnable() {
+
+                    code = barcodes.valueAt(0).displayValue;
+                    db.collection("test").addSnapshotListener(new EventListener<QuerySnapshot>() {
                         @Override
-                        public void run() {
-                            textView.setText(barcodes.valueAt(0).displayValue);
+                        public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+                            //code  = textView.getText().toString();
+                            for (DocumentSnapshot snapshot : documentSnapshots){
+                                if(snapshot.get("Code").equals(code))
+                                {
+                                    length = snapshot.get("Length").toString();
+                                    textView.setText(snapshot.get("Name").toString());
+                                    found = true;
+                                }
+
+                            }
                         }
                     });
+                    if(!found) {
+                        dbManager = DBManager.getInstance(ScanActivity.this);
+                        cursor = dbManager.getAllResults();
+                        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                            String Code = cursor.getString(cursor.getColumnIndex("CODE"));
+                            if (Code.equals(code)) {
+                                length = cursor.getString(cursor.getColumnIndex("LENGTH"));
+                                textView.setText(cursor.getString(cursor.getColumnIndex("NAME")));
+                                found = true;
+                            }
+
+                        }
+                    }
+                    if(!found){
+                        textView.setText(code);
+                        length = "";
+                    }
+
+
                 }
             }
         });
     }
 
     public void AddBarcode(View view) {
-        dbManager.addBarcode(textView.getText().toString(), "name");
 
-        Intent intent = new Intent(this, ListActivity.class);
-        /*
-        intent.putExtra("code", textView.getText().toString());
-        setResult(RESULT_OK, intent);
-        */
-        startActivity(intent);
-        finish();
+        if(found)
+        {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("length", length);
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+        else
+        {
+            LayoutInflater li = LayoutInflater.from(this);
+            View dialogView = li.inflate(R.layout.not_found_scan_dialog, null);
+            AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
+            mDialogBuilder
+                    .setView(dialogView)
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(ScanActivity.this, AddActivity.class);
+                            intent.putExtra("code", code);
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog alertDialog = mDialogBuilder.create();
+            alertDialog.show();
+        }
 
     }
 }
+
