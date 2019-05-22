@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                         if (!task.isSuccessful()) {
                             msg = "subscribe failed";
                         }
-                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                        Log.d("Sub", msg);
                     }
                 });
 
