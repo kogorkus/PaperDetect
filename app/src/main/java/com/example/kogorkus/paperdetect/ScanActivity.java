@@ -21,6 +21,7 @@ import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -39,6 +40,9 @@ public class ScanActivity extends Activity {
     private boolean found = false;
     private DBManager dbManager;
     private Cursor cursor;
+    private String ScanTarget;
+    private FirebaseDatabase database;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,13 @@ public class ScanActivity extends Activity {
         textView = findViewById(R.id.mTextView);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        Intent intent = getIntent();
+        if(intent.hasExtra("ScanTarget"))
+        {
+            ScanTarget = intent.getStringExtra("ScanTarget");
+        }
+
+        database = FirebaseDatabase.getInstance();
         db = FirebaseFirestore.getInstance();
 
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(this).build();
@@ -94,35 +105,42 @@ public class ScanActivity extends Activity {
                 if (barcodes.size() != 0) {
 
                     code = barcodes.valueAt(0).displayValue;
-                    db.collection("test").addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
-                            for (DocumentSnapshot snapshot : documentSnapshots) {
 
-                                if (snapshot.get("Code").equals(code)) {
-                                    length = snapshot.get("Length").toString();
-                                    textView.setText(snapshot.get("Name").toString());
-                                    found = true;
+                    if (ScanTarget.equals("NewDevice"))
+                    {
+                        textView.setText(code);
+                    }
+                    if (ScanTarget.equals("PaperFromBase")) {
+                        db.collection("test").addSnapshotListener(new EventListener<QuerySnapshot>() {
+                            @Override
+                            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+                                for (DocumentSnapshot snapshot : documentSnapshots) {
+
+                                    if (snapshot.get("Code").equals(code)) {
+                                        length = snapshot.get("Length").toString();
+                                        textView.setText(snapshot.get("Name").toString());
+                                        found = true;
+                                    }
                                 }
                             }
-                        }
-                    });
-                    if (!found) {
-                        dbManager = DBManager.getInstance(ScanActivity.this);
-                        cursor = dbManager.getAllResults();
-                        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                            String Code = cursor.getString(cursor.getColumnIndex("CODE"));
-                            if (Code.equals(code)) {
-                                length = cursor.getString(cursor.getColumnIndex("LENGTH"));
-                                textView.setText(cursor.getString(cursor.getColumnIndex("NAME")));
-                                found = true;
-                            }
+                        });
+                        if (!found) {
+                            dbManager = DBManager.getInstance(ScanActivity.this);
+                            cursor = dbManager.getAllResults();
+                            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                                String Code = cursor.getString(cursor.getColumnIndex("CODE"));
+                                if (Code.equals(code)) {
+                                    length = cursor.getString(cursor.getColumnIndex("LENGTH"));
+                                    textView.setText(cursor.getString(cursor.getColumnIndex("NAME")));
+                                    found = true;
+                                }
 
+                            }
                         }
-                    }
-                    if (!found) {
-                        textView.setText(code);
-                        length = "";
+                        if (!found) {
+                            textView.setText(code);
+                            length = "";
+                        }
                     }
 
 
@@ -133,34 +151,43 @@ public class ScanActivity extends Activity {
 
     public void AddBarcode(View view) {
 
-        if (found) {
+        if ( ScanTarget.equals("PaperFromBase")) {
+            if (found) {
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.putExtra("length", length);
+                setResult(RESULT_OK, intent);
+                finish();
+            } else {
+                LayoutInflater li = LayoutInflater.from(this);
+                View dialogView = li.inflate(R.layout.not_found_scan_dialog, null);
+                AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
+                mDialogBuilder
+                        .setView(dialogView)
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(ScanActivity.this, AddActivity.class);
+                                intent.putExtra("code", code);
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alertDialog = mDialogBuilder.create();
+                alertDialog.show();
+            }
+        }
+        if (ScanTarget.equals("NewDevice")) {
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("length", length);
+            intent.putExtra("DeviceID", code);
             setResult(RESULT_OK, intent);
             finish();
-        } else {
-            LayoutInflater li = LayoutInflater.from(this);
-            View dialogView = li.inflate(R.layout.not_found_scan_dialog, null);
-            AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
-            mDialogBuilder
-                    .setView(dialogView)
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(ScanActivity.this, AddActivity.class);
-                            intent.putExtra("code", code);
-                            startActivity(intent);
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-            AlertDialog alertDialog = mDialogBuilder.create();
-            alertDialog.show();
         }
+
 
     }
 }

@@ -18,4 +18,6 @@
     <string name="sign_up">Sign Up</string>
     <string name="sign_out">sign out</string>
     <string name="credits">credits</string>
+    <string name="add_new_device">Add new device</string>
+    <string name="not_selected">Not selected</string>
 </resources>

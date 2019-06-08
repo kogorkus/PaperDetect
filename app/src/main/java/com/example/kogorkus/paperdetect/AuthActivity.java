@@ -4,10 +4,8 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -20,6 +18,7 @@ public class AuthActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private EditText PassET, MailET;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +89,7 @@ public class AuthActivity extends AppCompatActivity {
                                 if(user.isEmailVerified()) {
                                     Toast.makeText(AuthActivity.this, "Signing in successful",
                                             Toast.LENGTH_SHORT).show();
+
                                 }
                                 else {
                                     Toast.makeText(AuthActivity.this, "Email is not Verified! Check your Email",
