@@ -13,27 +13,28 @@
         android:roundIcon="@mipmap/new_ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <service
-            android:name=".MyFcmService"
-            android:enabled="true"
-            android:exported="true"></service>
+        <activity android:name=".AuthActivity">
 
-        <activity android:name=".ScanToAddActivity" />
-        <activity android:name=".AddActivity" />
-        <activity android:name=".MainActivity">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+        </activity>
+
+        <service
+            android:name=".MyFcmService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".ScanToAddActivity" />
+        <activity android:name=".AddActivity" />
+        <activity android:name=".MainActivity">
         </activity>
         <activity android:name=".ScanActivity" />
         <activity android:name=".ListActivity" />
-
-
     </application>
-
-
-
 
 </manifest>

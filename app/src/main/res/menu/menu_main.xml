@@ -6,4 +6,12 @@
         android:title="@string/remove_length"
         android:icon="@drawable/ic_remove"
         />
+    <item
+        android:id="@+id/sign_out"
+        android:title="@string/sign_out"
+        />
+    <item
+        android:id="@+id/credits"
+        android:title="@string/credits"
+        />
 </menu>

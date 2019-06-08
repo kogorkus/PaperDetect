@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
     private TextView textView;
+    private FirebaseAuth mAuth;
+
 
 
     @Override
@@ -41,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textView = findViewById(R.id.MainText);
+
+        mAuth = FirebaseAuth.getInstance();
 
         FirebaseMessaging.getInstance().subscribeToTopic("News")
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -59,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if(isOnline()) {
             database = FirebaseDatabase.getInstance();
             DatabaseReference lengthRef = database.getReference("ESP8266_Test");
             lengthRef.addValueEventListener(new ValueEventListener() {
@@ -84,11 +89,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.w("db", "Failed to read value.", error.toException());
                 }
             });
-        }
-        else
-        {
-            textView.setText("no Internet connection");
-        }
+
     }
 
     public void OpenListActivity(View view) {
@@ -155,16 +156,22 @@ public class MainActivity extends AppCompatActivity {
             myRef.setValue(0);
             SetLength("");
         }
+        else if (item.getItemId() == R.id.sign_out)
+        {
+            mAuth.signOut();
+            finish();
+            startActivity(new Intent(MainActivity.this, AuthActivity.class));
+
+        }
+        else if (item.getItemId() == R.id.credits)
+        {
+
+        }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
-    }
+
     public void SetLength(String length)
     {
         DatabaseReference myRef = database.getReference("ESP8266_Test/Length");
