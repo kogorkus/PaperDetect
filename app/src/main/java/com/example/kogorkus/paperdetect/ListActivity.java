@@ -46,7 +46,7 @@ public class ListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String length = arrayList.get(position)[1];
                 Intent intent = new Intent(ListActivity.this, MainActivity.class);
-                intent.putExtra("length", length);
+                intent.putExtra("Value", length);
                 setResult(RESULT_OK, intent);
                 finish();
             }

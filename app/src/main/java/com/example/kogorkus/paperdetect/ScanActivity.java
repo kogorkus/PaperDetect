@@ -110,7 +110,7 @@ public class ScanActivity extends Activity {
                     {
                         textView.setText(code);
                     }
-                    if (ScanTarget.equals("PaperFromBase")) {
+                    if (ScanTarget.equals("ValueFromBase")) {
                         db.collection("test").addSnapshotListener(new EventListener<QuerySnapshot>() {
                             @Override
                             public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
@@ -151,10 +151,10 @@ public class ScanActivity extends Activity {
 
     public void AddBarcode(View view) {
 
-        if ( ScanTarget.equals("PaperFromBase")) {
+        if ( ScanTarget.equals("ValueFromBase")) {
             if (found) {
                 Intent intent = new Intent(this, MainActivity.class);
-                intent.putExtra("length", length);
+                intent.putExtra("Value", length);
                 setResult(RESULT_OK, intent);
                 finish();
             } else {

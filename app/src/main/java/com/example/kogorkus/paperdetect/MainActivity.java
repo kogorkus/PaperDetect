@@ -15,11 +15,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -38,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
     private String id;
     private FirebaseDatabase database;
     private myAdapter adapter;
-    private ListView listView;
     private FirebaseAuth mAuth;
     private ArrayList<Device> arrayList;
 
@@ -48,11 +49,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView = findViewById(R.id.devicesLV);
+        ListView listView = findViewById(R.id.devicesLV);
 
         arrayList = new ArrayList<>();
         adapter = new myAdapter(arrayList);
         listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, DeviceControlActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putBinder("Device", new ObjectWrapperForBinder(arrayList.get(position)));
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long l) {
+                DatabaseReference userRef = database.getReference("users/" + id + "/" + arrayList.get(position).getName());
+                userRef.setValue(null);
+                DatabaseReference deviceRef = database.getReference("Devices/" + arrayList.get(position).getID() + "/users/" + arrayList.get(position).getName());
+                deviceRef.setValue(null);
+                adapter.notifyDataSetChanged();
+                return false;
+            }
+        });
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
@@ -64,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 arrayList.clear();
-                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     String deviceID = snapshot.getValue().toString();
                     String deviceName = snapshot.getKey();
                     arrayList.add(new Device(deviceID, deviceName, adapter));
@@ -78,86 +101,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
-        /*
-        FirebaseMessaging.getInstance().subscribeToTopic("News")
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        String msg = "subscribed";
-                        if (!task.isSuccessful()) {
-                            msg = "subscribe failed";
-                        }
-                        Log.d("Sub", msg);
-                    }
-                });
-        */
-
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        /*
-        database = FirebaseDatabase.getInstance();
-        DatabaseReference lengthRef = database.getReference("ESP8266_Test");
-        lengthRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String lengthValue = dataSnapshot.child("CurrentLength").getValue(String.class);
-                String percentValue = dataSnapshot.child("Percent").getValue(String.class);
-                if (!lengthValue.equals("") && !lengthValue.equals("0.00")) {
-                    textView.setText(lengthValue + " м");
-                    if(!percentValue.equals("NaN"))
-                    {
-                        textView.append("\n (" + percentValue + "%)");
-                    }
-                } else {
-                    textView.setText(R.string.PleaseSet);
-                }
-                Log.d("db", "Value is: " + lengthValue);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.w("db", "Failed to read value.", error.toException());
-            }
-        }); */
 
     }
 
-
-
-    /*
-    public void ShowManuallyDialog(View view) {
-        LayoutInflater li = LayoutInflater.from(this);
-        View dialogView = li.inflate(R.layout.dialog, null);
-        AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
-        final EditText userInput = dialogView.findViewById(R.id.input_text);
-        mDialogBuilder
-                .setView(dialogView)
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            String length = userInput.getText() + "";
-                            Double.parseDouble(length);
-                            textView.setText(length);
-                            SetLength(length);
-                        } catch (NumberFormatException e) {
-                            Toast.makeText(MainActivity.this, "Please enter correct number", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-        AlertDialog alertDialog = mDialogBuilder.create();
-        alertDialog.show();
-    } */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -168,15 +117,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (item.getItemId() == R.id.sign_out)
-        {
+        if (item.getItemId() == R.id.sign_out) {
             mAuth.signOut();
             finish();
             startActivity(new Intent(MainActivity.this, AuthActivity.class));
 
-        }
-        else if (item.getItemId() == R.id.credits)
-        {
+        } else if (item.getItemId() == R.id.credits) {
 
         }
 
@@ -191,6 +137,8 @@ public class MainActivity extends AppCompatActivity {
             Device temp = arrayList.get(position);
             ImageView imageView = v.findViewById(R.id.DeviceIcon);
             TextView nameTV = v.findViewById(R.id.NameOfDevice);
+            TextView infoTV = v.findViewById(R.id.ValueFromDevice);
+            infoTV.setText(temp.getInfo());
             nameTV.setText(temp.getName());
             imageView.setImageResource(temp.getIcon());
             Log.d("pic", temp.getIcon() + "");
@@ -202,8 +150,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void AddNewDevice (View view)
-    {
+    public void AddNewDevice(View view) {
         Intent intent = new Intent(MainActivity.this, ScanActivity.class);
         intent.putExtra("ScanTarget", "NewDevice");
         startActivityForResult(intent, 1);
@@ -215,33 +162,27 @@ public class MainActivity extends AppCompatActivity {
         if (data != null) {
             final String deviceID = data.getStringExtra("DeviceID");
             Log.d("jojo", deviceID);
-            DatabaseReference deviceRef = database.getReference("Devices");
-            deviceRef.addValueEventListener(new ValueEventListener() {
+            final DatabaseReference deviceRef = database.getReference("Devices");
+            deviceRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     boolean found = false;
-                    for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                         if(deviceID.equals(snapshot.getKey()))
-                         {
-                             found = true;
-                         }
-                         else
-                         {
-
-                         }
-
-                         Log.d("jojo", snapshot.getKey() + " " + found);
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        if (deviceID.equals(snapshot.getKey())) {
+                            found = true;
+                            break;
+                        }
+                        Log.d("jojo", snapshot.getKey() + " " + found);
                     }
-                    if (found)
-                    {
+                    if (found) {
                         View parentLayout = findViewById(android.R.id.content);
                         ShowAddDeviceDialog(parentLayout, deviceID);
-                    }
-                    else
-                    {
 
+                    } else {
+                        Toast.makeText(MainActivity.this, "There`s no such Device in the databse. Please try to scan again", Toast.LENGTH_LONG).show();
                     }
                 }
+
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -253,12 +194,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ShowAddDeviceDialog(View view, final String DeviceID) {
-        LayoutInflater li = LayoutInflater.from(this);
+        LayoutInflater li = LayoutInflater.from(MainActivity.this);
         View dialogView = li.inflate(R.layout.dialog, null);
         AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
         final EditText userInput = dialogView.findViewById(R.id.input_text);
         TextView dialogDescriptionTV = dialogView.findViewById(R.id.tv);
-        dialogDescriptionTV.setText("Enter name of new Device. Please dont use existing names, it will replace existing Device");
+        dialogDescriptionTV.setText(getString(R.string.deviceNotFound));
         mDialogBuilder
                 .setView(dialogView)
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -266,6 +207,9 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         DatabaseReference userRef = database.getReference("users/" + id + "/" + userInput.getText().toString());
                         userRef.setValue(DeviceID);
+                        DatabaseReference deviceRef = database.getReference("Devices/" + DeviceID + "/users/" + userInput.getText().toString());
+                        deviceRef.setValue(id);
+                        dialog.cancel();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -277,8 +221,6 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog alertDialog = mDialogBuilder.create();
         alertDialog.show();
     }
-
-
 
 
 }

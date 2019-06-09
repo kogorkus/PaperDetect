@@ -13,11 +13,13 @@
     <string name="remove_length">clear length</string>
     <string name="add_new_item">add new item</string>
     <string name="CodeNotFound">Сode not found. Would you like to add the code to database?</string>
-    <string name="enter_length">Enter length</string>
+    <string name="enter_value">Enter value (m or ml)</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
     <string name="sign_out">sign out</string>
     <string name="credits">credits</string>
     <string name="add_new_device">Add new device</string>
     <string name="not_selected">Not selected</string>
+    <string name="clear">Clear</string>
+    <string name="deviceNotFound">Enter name of new Device. Please dont use existing names, it will replace existing Device</string>
 </resources>

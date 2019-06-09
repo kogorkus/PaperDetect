@@ -37,6 +37,7 @@ public class AuthActivity extends AppCompatActivity {
                     if (user.isEmailVerified()) {
                         Intent intent = new Intent(AuthActivity.this, MainActivity.class);
                         startActivity(intent);
+                        finish();
                     }
                 }
             }
@@ -45,8 +46,7 @@ public class AuthActivity extends AppCompatActivity {
         mAuth.addAuthStateListener(mAuthListener);
 
         FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null)
-        {
+        if (user != null) {
             Intent intent = new Intent(AuthActivity.this, MainActivity.class);
             startActivity(intent);
         }
@@ -55,43 +55,45 @@ public class AuthActivity extends AppCompatActivity {
 
 
     public void SignUp(View view) {
-        if(!MailET.getText().toString().equals("") && !PassET.getText().toString().equals(""))
+        if (!MailET.getText().toString().equals("") && !PassET.getText().toString().equals(""))
             mAuth.createUserWithEmailAndPassword(MailET.getText().toString(), PassET.getText().toString())
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(AuthActivity.this, "Signing up successful", Toast.LENGTH_SHORT).show();
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            user.sendEmailVerification();
-                            Toast.makeText(AuthActivity.this, "Please, verify your Email", Toast.LENGTH_LONG).show();
-                        } else {
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(AuthActivity.this, "Signing up successful", Toast.LENGTH_SHORT).show();
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                user.sendEmailVerification();
+                                Toast.makeText(AuthActivity.this, "Please, verify your Email", Toast.LENGTH_LONG).show();
+                            } else {
 
-                            Toast.makeText(AuthActivity.this, "Signing up failed." +
-                                            task.getException().toString()
-                                            .split(":")[1],
-                                    Toast.LENGTH_LONG).show();
+                                Toast.makeText(AuthActivity.this, "Signing up failed." +
+                                                task.getException().toString()
+                                                        .split(":")[1],
+                                        Toast.LENGTH_LONG).show();
+                            }
                         }
-                    }
-                });
+                    });
 
     }
 
     public void SignIn(View view) {
-        if(!MailET.getText().toString().equals("") && !PassET.getText().toString().equals(""))
+        if (!MailET.getText().toString().equals("") && !PassET.getText().toString().equals(""))
             mAuth.signInWithEmailAndPassword(MailET.getText().toString(), PassET.getText().toString())
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        FirebaseUser user = mAuth.getCurrentUser();
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            FirebaseUser user = mAuth.getCurrentUser();
 
                             if (task.isSuccessful()) {
-                                if(user.isEmailVerified()) {
+                                if (user.isEmailVerified()) {
                                     Toast.makeText(AuthActivity.this, "Signing in successful",
                                             Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(AuthActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
 
-                                }
-                                else {
+                                } else {
                                     Toast.makeText(AuthActivity.this, "Email is not Verified! Check your Email",
                                             Toast.LENGTH_LONG).show();
                                 }
@@ -104,6 +106,6 @@ public class AuthActivity extends AppCompatActivity {
                         }
 
 
-                });
+                    });
     }
 }
