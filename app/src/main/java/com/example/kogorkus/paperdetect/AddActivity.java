@@ -45,7 +45,8 @@ public class AddActivity extends Activity {
     }
 
     public void Scan(View view) {
-        Intent intent = new Intent(this, ScanToAddActivity.class);
+        Intent intent = new Intent(this, ScanActivity.class);
+        intent.putExtra("ScanTarget", "CodeToAdd");
         startActivityForResult(intent, 1);
     }
 

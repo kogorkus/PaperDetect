@@ -106,7 +106,7 @@ public class ScanActivity extends Activity {
 
                     code = barcodes.valueAt(0).displayValue;
 
-                    if (ScanTarget.equals("NewDevice"))
+                    if (ScanTarget.equals("NewDevice") || ScanTarget.equals("CodeToAdd"))
                     {
                         textView.setText(code);
                     }
@@ -187,6 +187,14 @@ public class ScanActivity extends Activity {
             setResult(RESULT_OK, intent);
             finish();
         }
+        if (ScanTarget.equals("CodeToAdd")) {
+            Intent intent = new Intent(this, AddActivity.class);
+            intent.putExtra("code", code);
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+
+
 
 
     }

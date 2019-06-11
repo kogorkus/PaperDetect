@@ -123,7 +123,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, AuthActivity.class));
 
         } else if (item.getItemId() == R.id.credits) {
-
+            Intent intent = new Intent(MainActivity.this, CreditsActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

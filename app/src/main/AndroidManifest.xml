@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/new_ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".DeviceControlActivity"></activity>
+        <activity android:name=".CreditsActivity"></activity>
+        <activity android:name=".DeviceControlActivity" />
         <activity android:name=".AuthActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,9 +28,8 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".ScanToAddActivity" />
         <activity android:name=".AddActivity" />
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
         <activity android:name=".ScanActivity" />
         <activity android:name=".ListActivity" />
     </application>

@@ -22,4 +22,6 @@
     <string name="not_selected">Not selected</string>
     <string name="clear">Clear</string>
     <string name="deviceNotFound">Enter name of new Device. Please dont use existing names, it will replace existing Device</string>
+    <string name="development">Development: Smitienko Vitalii</string>
+    <string name="icons">Icons: www.freepik.com</string>
 </resources>
